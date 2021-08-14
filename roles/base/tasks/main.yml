@@ -1,0 +1,8 @@
+---
+
+- name: install base packages
+  apt: name="{{ item }}" state=latest update_cache=yes
+  loop: ["ntp", "ca-certificates", "letsencrypt"]
+
+- name: start ntpd
+  service: name=ntp state=started enabled=yes
