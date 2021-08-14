@@ -1,0 +1,83 @@
+
+* Setup
+
+** Intro
+
+   This repository contains the installation of the following
+   services:
+
+   - [[https://docs.influxdata.com/influxdb/v2.0/][InfluxDB]]
+   - [[https://grafana.com/][Grafana]]
+   - [[https://github.com/dani-garcia/vaultwarden][Vault Warden]] (a [[https://bitwarden.com/][Bitwarden]] compatible service)
+
+** Create Passwords
+
+   All services setup by this repository require some sort of
+   password.  They all will be stored within [[https://docs.ansible.com/ansible/latest/user_guide/vault.html][Ansible Vault]].
+
+   I use [[https://www.passwordstore.org/][pass]] to store Ansible Vault's token, and that integration was
+   automated in the script ~scripts/vault-client.py~.  Any other mens
+   for getting a password can be used instead of ~pass~, e.g.:
+   ~security find-generic-password -w -s cli -a account~ in macos.
+   Tweak that script according to your needs.
+
+   Once the token for Ansible Vault is safely accessible, it's time to
+   store both InfluxDB and Grafana's passwords in there.  The
+   following example is using ~apg~ to generate a random password, but
+   feel free to use any other tool that you're familiar with.
+
+   #+begin_src  shell
+     $ apg -m64 -n1 -a0 | \
+         ansible-vault encrypt_string \
+         --vault-id clarete@scripts/vault-client.py \
+         --stdin-name influxdb_password_vault >> vault.yml
+     $ apg -m64 -n1 -a0 | \
+         ansible-vault encrypt_string \
+         --vault-id clarete@scripts/vault-client.py \
+         --stdin-name grafana_password_vault >> vault.yml
+   #+end_src
+
+** Try out locally
+   This setup comes with a ~Vagrantfile~, so if you have [[https://www.vagrantup.com/][vagrant]]
+   installed, you can do the following to see it working locally
+   (without SSL enabled):
+
+   #+begin_src shell
+     $ vagrant up
+     $ vagrant ssh
+     % sudo netstat -ltp  # should show all services running
+   #+end_src
+
+** Remote Installation
+
+   In order to install this playbook in a remote host, we need to
+   setup an inventory file.  Ansible does have the hability to pull
+   inventories automatically, but for the simpler case of a simple
+   machine, an inventory file could look like the following:
+
+   #+begin_src shell
+     [remote]
+     0.0.0.0 ansible_user=YOUR-USER ansible_ssh_private_key_file=/path/to/.ssh/key ansible_python_interpreter=/usr/bin/python3
+   #+end_src
+
+   The above string ~0.0.0.0~ must be replaced with the IPv4 address
+   of the remote host.  Once the above content is saved somewhere like
+   in ~inventory/remote~, run the following command to see things in
+   action.
+
+   #+begin_src shell
+     $ ansible-playbook -vvv -i inventory/remote \
+       --vault-id clarete@scripts/vault-client.py playbook.yml
+   #+end_src
+
+** action log: Google Cloud Attached Disk
+   - created a new project
+   - created a regional disk
+   - created a VM with disk attached
+   - uploaded a newly created SSH key to metadata
+   - add the new ssh key to my local agent with ~ssh-add~
+   - ssh into the new host
+   - created partition with cfdisk
+   - formatted partition with ~mkfs.ext4~
+   - edited ~/etc/fstab~ mounting new partition at ~/mnt/clarete-dev~
+   - marked the IP static in google cloud
