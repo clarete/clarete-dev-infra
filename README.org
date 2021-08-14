@@ -35,6 +35,10 @@
          ansible-vault encrypt_string \
          --vault-id clarete@scripts/vault-client.py \
          --stdin-name grafana_password_vault >> vault.yml
+     $ apg -m64 -n1 -a0 | \
+         ansible-vault encrypt_string \
+         --vault-id clarete@scripts/vault-client.py \
+         --stdin-name vaultwarden_password_vault >> vault.yml
    #+end_src
 
 ** Try out locally

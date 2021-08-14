@@ -29,6 +29,7 @@
     vaultwarden_image: "vaultwarden/server"
     vaultwarden_version: "latest"
     vaultwarden_port: 4000
+    vaultwarden_password: "{{ vaultwarden_password_vault }}"
 
     ssl: "{{ ssl_override | default(True) }}"
     letsencrypt_email: lincoln@clarete.li
