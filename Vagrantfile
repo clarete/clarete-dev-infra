@@ -12,6 +12,8 @@ Vagrant.configure("2") do |config|
         "clarete@scripts/vault-client.py",
         "-e",
         "ansible_python_interpreter=/usr/bin/python3",
+        "-e",
+        "ssl=false",
       ]
     end
   end
