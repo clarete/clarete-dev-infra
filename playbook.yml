@@ -30,7 +30,7 @@
     vaultwarden_version: "latest"
     vaultwarden_port: 4000
 
-    ssl: true
+    ssl: "{{ ssl | default(True) }}"
     letsencrypt_email: lincoln@clarete.li
     letsencrypt_etc_path: "/etc/letsencrypt/live"
     letsencrypt_certificate_name: "observ"
