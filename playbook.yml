@@ -30,22 +30,27 @@
     vaultwarden_version: "latest"
     vaultwarden_port: 4000
 
-    ssl: "{{ ssl | default(True) }}"
+    ssl: "{{ ssl_override | default(True) }}"
     letsencrypt_email: lincoln@clarete.li
     letsencrypt_etc_path: "/etc/letsencrypt/live"
     letsencrypt_certificate_name: "observ"
     letsencrypt_certificate_path: "/etc/letsencrypt/live/observ"
     letsencrypt_webroot_path: "/var/www/letsencrypt"
+
+  tasks:
+    - name: stuff
+      debug: msg="SOMETHING {{ ssl_override }}, {{ ssl }} kaboom"
+
   roles:
-    - name: base
-      tags: base
-    - name: influxdb
-      tags: influxdb
-    - name: grafana
-      tags: grafana
-    - name: docker
-      tags: docker
-    - name: vaultwarden
-      tags: vaultwarden
+    # - name: base
+    #   tags: base
+    # - name: influxdb
+    #   tags: influxdb
+    # - name: grafana
+    #   tags: grafana
+    # - name: docker
+    #   tags: docker
+    # - name: vaultwarden
+    #   tags: vaultwarden
     - name: nginx
       tags: nginx

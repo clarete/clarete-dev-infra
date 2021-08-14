@@ -13,7 +13,7 @@ Vagrant.configure("2") do |config|
         "-e",
         "ansible_python_interpreter=/usr/bin/python3",
         "-e",
-        "ssl=false",
+        "ssl_override=False",
       ]
     end
   end
