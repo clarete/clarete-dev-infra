@@ -37,20 +37,16 @@
     letsencrypt_certificate_path: "/etc/letsencrypt/live/observ"
     letsencrypt_webroot_path: "/var/www/letsencrypt"
 
-  tasks:
-    - name: stuff
-      debug: msg="SOMETHING {{ ssl_override }}, {{ ssl }} kaboom"
-
   roles:
-    # - name: base
-    #   tags: base
-    # - name: influxdb
-    #   tags: influxdb
-    # - name: grafana
-    #   tags: grafana
-    # - name: docker
-    #   tags: docker
-    # - name: vaultwarden
-    #   tags: vaultwarden
+    - name: base
+      tags: base
+    - name: influxdb
+      tags: influxdb
+    - name: grafana
+      tags: grafana
+    - name: docker
+      tags: docker
+    - name: vaultwarden
+      tags: vaultwarden
     - name: nginx
       tags: nginx
