@@ -7,7 +7,12 @@ Vagrant.configure("2") do |config|
       ansible.playbook = "playbook.yml"
       ansible.limit = "all"
       ansible.verbose = "v"
-      ansible.raw_arguments = ["--vault-id", "clarete@scripts/vault-client.py"]
+      ansible.raw_arguments = [
+        "--vault-id",
+        "clarete@scripts/vault-client.py",
+        "-e",
+        "ansible_python_interpreter=/usr/bin/python3",
+      ]
     end
   end
 end
