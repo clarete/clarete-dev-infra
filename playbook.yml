@@ -18,11 +18,12 @@
     influxdb_org: clarete
     influxdb_bucket: main
     influxdb_user: admin
+    influxdb_host: localhost
+    influxdb_port: 8086
     influxdb_password: "{{ influxdb_password_vault }}"
 
     grafana_password: "{{ grafana_password_vault }}"
-
-    vaultwarden_path: "{{ datapart_path }}"
+    grafana_port: 3000
 
     ssl: true
     letsencrypt_email: lincoln@clarete.li
@@ -31,7 +32,11 @@
     letsencrypt_certificate_path: "/etc/letsencrypt/live/observ"
     letsencrypt_webroot_path: "/var/www/letsencrypt"
   roles:
-    - base
-    - influxdb
-    - grafana
-    - nginx
+    - name: base
+      tags: base
+    - name: influxdb
+      tags: influxdb
+    - name: grafana
+      tags: grafana
+    - name: nginx
+      tags: nginx

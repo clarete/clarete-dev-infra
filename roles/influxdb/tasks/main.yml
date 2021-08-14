@@ -63,7 +63,7 @@
 - name: wait for influxdb to come up
   wait_for:
     timeout: 120
-    port: 8086
+    port: "{{ influxdb_port }}"
 
 - name: setup instance
   ansible.builtin.shell: |

@@ -5,7 +5,7 @@ datasources:
   - name: InfluxDB_v2_Flux
     type: influxdb
     access: proxy
-    url: http://localhost:8086
+    url: "http://{{ influxdb_host }}:{{ influxdb_port }}"
     secureJsonData:
       password: "{{ influxdb_password }}"
     jsonData:

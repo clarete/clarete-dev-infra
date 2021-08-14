@@ -1,4 +1,4 @@
 rewrite_rules: [
-  ["influxdb2.observ.clarete.dev", "localhost:8086"],
-  ["grafana.observ.clarete.dev", "localhost:3000"],
+  ["influxdb2.observ.clarete.dev", "localhost:{{ influxdb_port }}"],
+  ["grafana.observ.clarete.dev", "localhost:{{ grafana_port }}"],
 ]
