@@ -1,0 +1,31 @@
+# -*- Mode: nginx; -*-
+add_header X-Frame-Options SAMEORIGIN;
+add_header X-Content-Type-Options nosniff;
+add_header X-XSS-Protection "1; mode=block";
+
+{# defined in vars/main.yml #}
+{% for domain, redirect in rewrite_rules %}
+
+server {
+    listen 443 ssl;
+    server_name {{ domain }};
+    access_log /var/log/nginx/{{ domain }}-ssl-access.log;
+    error_log /var/log/nginx/{{ domain }}-ssl-error.log;
+    include /etc/nginx/snippets/letsencrypt.conf;
+    {% if ssl %}
+    include /etc/nginx/snippets/ssl.conf;
+    {% endif %}
+
+    keepalive_requests 200;
+    keepalive_timeout 65s;
+    client_body_timeout 8;
+    client_header_timeout 4;
+    send_timeout 4;
+
+    location / {
+        # Always HTTP here, because it's local
+        proxy_pass http://{{ redirect }};
+    }
+}
+
+{% endfor %}

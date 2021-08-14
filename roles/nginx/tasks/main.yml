@@ -1,0 +1,100 @@
+---
+
+- name: install nginx
+  apt: name=nginx state=present
+
+## Configuration Snippets
+- name: ssl snippet file
+  template:
+    mode="644" src="snippet.ssl.j2"
+    dest="/etc/nginx/snippets/ssl.conf"
+  notify: restart nginx
+- name: letsencrypt snippet file
+  template:
+    mode="644" src="snippet.letsencrypt.j2"
+    dest="/etc/nginx/snippets/letsencrypt.conf"
+  notify: restart nginx
+
+## Nginx configuration
+- name: server configuration file
+  template:
+    mode="644" src="server.conf.j2"
+    dest="/etc/nginx/nginx.conf"
+  notify: restart nginx
+- name: Get rid of default nginx configuration
+  file: path="/etc/nginx/sites-enabled/default" state="absent"
+
+## Site files
+- name: ensure http site file
+  template:
+    mode="644" src="site.http.conf.j2"
+    dest="/etc/nginx/sites-available/site.http.conf"
+  notify: restart nginx
+- name: enable http site file
+  file:
+    state="link"
+    src="/etc/nginx/sites-available/site.http.conf"
+    dest="/etc/nginx/sites-enabled/site.http.conf"
+  notify: restart nginx
+
+- name: ensure nginx is started
+  service: name=nginx state=started
+
+## Let's Encrypt Directories
+- name: create letsencrypt directory
+  file: name="{{ item }}" state="directory"
+  with_items:
+    - "{{ letsencrypt_webroot_path }}"
+    - "{{ letsencrypt_webroot_path }}/.well-known/acme-challenge"
+
+# Let's Encrypt Configuration
+- name: Generate dhparams
+  shell: openssl dhparam -out /etc/nginx/dhparams.pem 2048
+  args:
+    creates: /etc/nginx/dhparams.pem
+
+- name: install letsencrypt
+  apt: name=letsencrypt state=present
+
+- name: Create letsencrypt certificate
+  shell: |
+    letsencrypt certonly -n --webroot --agree-tos \
+      --cert-name {{ letsencrypt_certificate_name }} \
+      -w {{ letsencrypt_webroot_path }} \
+      -m {{ letsencrypt_email }} \
+      {% for domain, _ in rewrite_rules %} -d {{ domain }}{% endfor %}
+  args:
+    creates: "{{ letsencrypt_etc_path }}"
+  when: ssl
+
+- name: letsencrypt renewal script
+  copy:
+    dest: /usr/sbin/lesencrypt-renew.sh
+    mode: 0755
+    content: |
+      #!/bin/sh
+      letsencrypt --renew certonly -n --webroot --agree-tos \
+        --cert-name {{ letsencrypt_certificate_name }} \
+        -w {{ letsencrypt_webroot_path }} \
+        -m {{ letsencrypt_email }} \
+        {% for domain, _ in rewrite_rules %} -d {{ domain }}{% endfor %} \
+      && service nginx reload
+
+- name: Add letsencrypt cronjob for cert renewal
+  ansible.builtin.cron:
+    name: letsencrypt_renewal
+    special_time: weekly
+    job: /usr/sbin/letsencrypt-renew.sh
+  when: ssl
+
+- name: ensure https site file
+  template:
+    mode="644" src="site.https.conf.j2"
+    dest="/etc/nginx/sites-available/site.https.conf"
+  notify: restart nginx
+- name: enable https site file
+  file:
+    state="link"
+    src="/etc/nginx/sites-available/site.https.conf"
+    dest="/etc/nginx/sites-enabled/site.https.conf"
+  notify: restart nginx

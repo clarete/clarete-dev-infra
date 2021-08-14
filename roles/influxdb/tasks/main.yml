@@ -1,0 +1,80 @@
+---
+
+- name: install gpg
+  apt: name=gpg state=present
+
+- name: import influxdb gpg signing key
+  apt_key: url=https://repos.influxdata.com/influxdb.key state=present
+
+- name: setup influxdb repository
+  apt_repository:
+    repo: "deb https://repos.influxdata.com/debian {{ deb_version }} {{ deb_dist }}"
+    state: present
+
+- name: install influxdb
+  apt: name=influxdb2 state=present
+
+- name: copy default file
+  template:
+    src: influxdb2.j2
+    dest: /etc/default/influxdb2
+    mode: 0644
+    owner: root
+    group: root
+  register: default_file
+
+- name: copy settings file
+  template:
+    src: config.toml.j2
+    dest: /etc/influxdb/config.toml
+    mode: 0644
+    owner: root
+    group: root
+  register: settings_file
+
+- name: copy service file
+  template:
+    src: influxdb.service.j2
+    dest: /lib/systemd/system/influxdb.service
+    mode: 0644
+    owner: root
+    group: root
+  register: service_file
+  when: default_file.changed or settings_file.changed
+
+- name: reload systemctl daemon to pickup file change
+  ansible.builtin.shell: systemctl daemon-reload
+  when: service_file.changed
+
+- name: ensure directory
+  file:
+    path: "{{ influxdb_path }}/var/lib/influxdb"
+    state: directory
+    owner: influxdb
+    group: influxdb
+
+- name: start influxdb
+  service:
+    name: influxdb
+    state: restarted
+    enabled: yes
+  when: service_file.changed
+
+- name: wait for influxdb to come up
+  wait_for:
+    timeout: 120
+    port: 8086
+
+- name: setup instance
+  ansible.builtin.shell: |
+    influx setup                        \
+      --org "{{ influxdb_org }}"           \
+      --bucket "{{ influxdb_bucket }}"     \
+      --username "{{ influxdb_user }}"     \
+      --password "{{ influxdb_password }}" \
+      --force && touch /var/run/setup-influx
+  args:
+    creates: /var/run/setup-influx
+
+  # no_log: true
+  # diff: no

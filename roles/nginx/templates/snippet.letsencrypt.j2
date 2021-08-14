@@ -1,0 +1,6 @@
+# -*- Mode: nginx; -*-
+
+location ^~ /.well-known/acme-challenge/ {
+    default_type "text/plain";
+    root {{ letsencrypt_webroot_path }};
+}

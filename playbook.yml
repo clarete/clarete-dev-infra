@@ -1,0 +1,37 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vault.yml
+  vars:
+    deb_name: debian
+    deb_version: buster
+    deb_dist: stable
+    deb_component: main
+
+    datapart_path: "/mnt/clarete-dev"
+
+    influxdb_path: "{{ datapart_path }}"
+    influxdb_version: 2.0.4
+    influxdb_deb_url: https://dl.influxdata.com/influxdb/releases/influxdb2-2.0.4-amd64.deb
+    influxdb_deb_sha256: a3296922db5ecb58f759f12abce6e98b55759079aeb838a6083b71325cf662b7
+    influxdb_org: clarete
+    influxdb_bucket: main
+    influxdb_user: admin
+    influxdb_password: "{{ influxdb_password_vault }}"
+
+    grafana_password: "{{ grafana_password_vault }}"
+
+    vaultwarden_path: "{{ datapart_path }}"
+
+    ssl: true
+    letsencrypt_email: lincoln@clarete.li
+    letsencrypt_etc_path: "/etc/letsencrypt/live"
+    letsencrypt_certificate_name: "observ"
+    letsencrypt_certificate_path: "/etc/letsencrypt/live/observ"
+    letsencrypt_webroot_path: "/var/www/letsencrypt"
+  roles:
+    - base
+    - influxdb
+    - grafana
+    - nginx
