@@ -1,0 +1,21 @@
+---
+
+- name: Install required system packages
+  apt: name="{{ item }}" state=latest update_cache=yes
+  loop: ["apt-transport-https", "ca-certificates", "curl", "software-properties-common", "python3-pip", "virtualenv", "python3-setuptools"]
+
+- name: add GPG key
+  apt_key:
+    url: "https://download.docker.com/linux/{{ deb_name }}/gpg"
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: "deb https://download.docker.com/linux/{{ deb_name }} {{ deb_version }} {{ deb_dist }}"
+    state: present
+
+- name: Update apt and install docker-ce
+  apt: update_cache=yes name=docker-ce state=latest
+
+- name: Install Docker Module for Python
+  pip: name="docker" executable="pip3"

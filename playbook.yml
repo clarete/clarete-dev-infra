@@ -25,6 +25,11 @@
     grafana_password: "{{ grafana_password_vault }}"
     grafana_port: 3000
 
+    vaultwarden_path: "{{ datapart_path }}"
+    vaultwarden_image: "vaultwarden/server"
+    vaultwarden_version: "latest"
+    vaultwarden_port: 4000
+
     ssl: true
     letsencrypt_email: lincoln@clarete.li
     letsencrypt_etc_path: "/etc/letsencrypt/live"
@@ -38,5 +43,9 @@
       tags: influxdb
     - name: grafana
       tags: grafana
+    - name: docker
+      tags: docker
+    - name: vaultwarden
+      tags: vaultwarden
     - name: nginx
       tags: nginx

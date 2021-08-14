@@ -62,7 +62,8 @@
       --cert-name {{ letsencrypt_certificate_name }} \
       -w {{ letsencrypt_webroot_path }} \
       -m {{ letsencrypt_email }} \
-      {% for domain, _ in rewrite_rules %} -d {{ domain }}{% endfor %}
+      {% for domain, _ in rewrite_rules %} -d {{ domain }}{% endfor %} \
+      && service nginx reload
   args:
     creates: "{{ letsencrypt_etc_path }}"
   when: ssl

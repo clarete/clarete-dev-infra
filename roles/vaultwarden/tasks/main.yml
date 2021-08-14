@@ -1,0 +1,23 @@
+---
+
+- name: ensure data directory
+  file:
+    path: "{{ vaultwarden_path }}/var/lib/vaultwarden"
+    state: directory
+
+- name: Pull default Docker image
+  docker_image:
+    name: "{{ vaultwarden_image }}:{{ vaultwarden_version }}"
+    source: pull
+
+- name: Run vault-warden Container
+  docker_container:
+    name: vaultwarden-server
+    image: "{{ vaultwarden_image }}:{{ vaultwarden_version }}"
+    state: started
+    volumes:
+      - "{{ vaultwarden_path }}/var/lib/vaultwarden/:/data/"
+    ports:
+      - "{{ vaultwarden_port }}:80"
+    env:
+      SIGNUPS_ALLOWED: "false"
