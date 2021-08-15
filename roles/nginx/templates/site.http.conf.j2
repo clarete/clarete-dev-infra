@@ -24,8 +24,9 @@ server {
 
         # Always HTTP here, because it's local
         proxy_pass http://{{ redirect }};
-        {% endif %}
 
+        limit_req zone=rate_limit;
+        {% endif %}
     }
 }
 
