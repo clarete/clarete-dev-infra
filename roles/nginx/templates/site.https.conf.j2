@@ -26,7 +26,7 @@ server {
         # Always HTTP here, because it's local
         proxy_pass http://{{ redirect }};
 
-        limit_req zone=rate_limit;
+        limit_req zone=rate_limit burst=20 nodelay;
     }
 }
 
