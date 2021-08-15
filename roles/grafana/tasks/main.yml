@@ -11,6 +11,12 @@
 - name: install grafana
   apt: name=grafana state=present
 
+- name: ensure datasource file
+  template:
+    mode="644" src="influxdb-datasrc.yml.j2"
+    dest="/etc/grafana/provisioning/datasources/influxdb2.yaml"
+  notify: grafana-server restart
+
 - name: set admin password
   lineinfile:
     dest: /etc/grafana/grafana.ini
