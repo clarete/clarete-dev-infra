@@ -11,6 +11,11 @@
 
     datapart_path: "/mnt/clarete-dev"
 
+    compz_hostname: dancingduck
+    compz_admin: lincoln@clarete.li
+
+    postfix_mailname: clarete.dev
+
     influxdb_path: "{{ datapart_path }}"
     influxdb_version: 2.0.4
     influxdb_deb_url: https://dl.influxdata.com/influxdb/releases/influxdb2-2.0.4-amd64.deb
@@ -32,7 +37,7 @@
     vaultwarden_password: "{{ vaultwarden_password_vault }}"
 
     ssl: "{{ ssl_override | default(True) }}"
-    letsencrypt_email: lincoln@clarete.li
+    letsencrypt_email: "{{ compz_admin }}"
     letsencrypt_etc_path: "/etc/letsencrypt/live"
     letsencrypt_certificate_name: "observ"
     letsencrypt_certificate_path: "/etc/letsencrypt/live/observ"
@@ -41,6 +46,8 @@
   roles:
     - name: base
       tags: base
+    - name: postfix
+      tags: postfix
     - name: influxdb
       tags: influxdb
     - name: grafana

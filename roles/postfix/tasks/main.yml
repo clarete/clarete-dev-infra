@@ -1,0 +1,25 @@
+---
+
+- name: install mailutils
+  apt: name="{{ item }}" state=latest update_cache=yes
+  loop: ["mailutils", "postfix"]
+
+- name: aliases file
+  template:
+    mode="644" src="aliases.j2"
+    dest="/etc/aliases"
+  notify:
+    - newaliases
+    - restart postfix
+
+- name: mailname file
+  template:
+    mode="644" src="mailname.j2"
+    dest="/etc/mailname"
+  notify: restart postfix
+
+- name: postfix configuration file
+  template:
+    mode="644" src="main.cf.j2"
+    dest="/etc/postfix/main.cf"
+  notify: restart postfix

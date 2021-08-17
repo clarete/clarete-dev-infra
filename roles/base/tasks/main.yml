@@ -1,5 +1,9 @@
 ---
 
+- name: Set the hostname
+  ansible.builtin.hostname:
+    name: "{{ compz_hostname }}"
+
 - name: install base packages
   apt: name="{{ item }}" state=latest update_cache=yes
   loop: ["ntp", "ca-certificates", "letsencrypt"]
