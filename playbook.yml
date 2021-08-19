@@ -10,11 +10,13 @@
     deb_component: main
 
     datapart_path: "/mnt/clarete-dev"
+    base_domain: clarete.dev
 
     compz_hostname: dancingduck
     compz_admin: lincoln@clarete.li
 
-    postfix_mailname: clarete.dev
+    postfix_hostname: "{{ compz_hostname }}.{{ base_domain }}"
+    opendkim_selector: 202108
 
     influxdb_path: "{{ datapart_path }}"
     influxdb_version: 2.0.4

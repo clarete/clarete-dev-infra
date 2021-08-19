@@ -2,24 +2,52 @@
 
 - name: install mailutils
   apt: name="{{ item }}" state=latest update_cache=yes
-  loop: ["mailutils", "postfix"]
+  loop: ["mailutils", "postfix", "opendkim", "opendkim-tools"]
+
+## OPENDKIM
+
+- name: ensure opendkim config directory
+  file: path="/etc/opendkim" state=directory owner=opendkim group=opendkim mode=0750
+- name: ensure opendkim key directory
+  file: path="/etc/opendkim/keys" state=directory owner=opendkim group=opendkim mode=0750
+- name: ensure opendkim key directory
+  file: path="/etc/opendkim/keys/{{ base_domain }}" state=directory owner=opendkim group=opendkim mode=0750
+- name: generate opendkim keys for base domain
+  ansible.builtin.shell: opendkim-genkey -b 2048 -d {{ base_domain }} -s {{ opendkim_selector }} -v
+  args:
+    creates: "/etc/opendkim/keys/{{ base_domain }}/{{ opendkim_selector }}.private"
+    chdir: "/etc/opendkim/keys/{{ base_domain }}"
+- name: set owner and group of newly created keys
+  ansible.builtin.file:
+    path: "/etc/opendkim/keys/{{ base_domain }}"
+    owner: "opendkim"
+    group: "opendkim"
+    mode: "0750"
+    recurse: yes
+
+- name: opendkim trustedhosts
+  template: src="trustedhosts.j2" dest="/etc/opendkim/trustedhosts" mode="644"
+  notify: restart opendkim
+- name: opendkim signingtable
+  template: src="signingtable.j2" dest="/etc/opendkim/signingtable" mode="644"
+  notify: restart opendkim
+- name: opendkim keytable
+  template: src="keytable.j2" dest="/etc/opendkim/keytable" mode="644"
+  notify: restart opendkim
+- name: opendkim configuration file
+  template: src="opendkim.conf.j2" dest="/etc/opendkim.conf" mode="644"
+  notify: restart opendkim
+
+## POSTFIX
 
 - name: aliases file
-  template:
-    mode="644" src="aliases.j2"
-    dest="/etc/aliases"
+  template: src="aliases.j2" dest="/etc/aliases" mode="644"
   notify:
-    - newaliases
     - restart postfix
-
+    - newaliases
 - name: mailname file
-  template:
-    mode="644" src="mailname.j2"
-    dest="/etc/mailname"
+  template: src="mailname.j2" dest="/etc/mailname" mode="644"
   notify: restart postfix
-
 - name: postfix configuration file
-  template:
-    mode="644" src="main.cf.j2"
-    dest="/etc/postfix/main.cf"
+  template: src="main.cf.j2" dest="/etc/postfix/main.cf" mode="644"
   notify: restart postfix
