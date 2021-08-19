@@ -21,5 +21,6 @@
       - "{{ vaultwarden_port }}:80"
     env:
       ADMIN_TOKEN: "{{ vaultwarden_password }}"
+      DOMAIN: "pm.{{ base_domain }}"
       SIGNUPS_ALLOWED: "false"
       SHOW_PASSWORD_HINT: "false"
