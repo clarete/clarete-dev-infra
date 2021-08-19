@@ -32,7 +32,6 @@ smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 # See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
 # information on enabling SSL in the smtp client.
 
-smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
 myhostname = {{ postfix_hostname }}
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
@@ -47,3 +46,16 @@ milter_protocol = 2
 milter_default_action = accept
 smtpd_milters = inet:localhost:8891
 non_smtpd_milters = $smtpd_milters
+
+policyd-spf_time_limit = 3600
+
+smtpd_relay_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    defer_unauth_destination
+
+smtpd_recipient_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unauth_destination,
+    check_policy_service unix:private/policyd-spf

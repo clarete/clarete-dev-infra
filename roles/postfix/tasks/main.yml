@@ -2,7 +2,7 @@
 
 - name: install mailutils
   apt: name="{{ item }}" state=latest update_cache=yes
-  loop: ["mailutils", "postfix", "opendkim", "opendkim-tools"]
+  loop: ["mailutils", "postfix", "opendkim", "opendkim-tools", "postfix-policyd-spf-python"]
 
 ## OPENDKIM
 
@@ -48,6 +48,9 @@
 - name: mailname file
   template: src="mailname.j2" dest="/etc/mailname" mode="644"
   notify: restart postfix
-- name: postfix configuration file
+- name: main postfix configuration file
   template: src="main.cf.j2" dest="/etc/postfix/main.cf" mode="644"
+  notify: restart postfix
+- name: master postfix configuration file
+  template: src="master.cf.j2" dest="/etc/postfix/master.cf" mode="644"
   notify: restart postfix
