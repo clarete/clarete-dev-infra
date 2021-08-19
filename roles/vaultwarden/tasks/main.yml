@@ -15,12 +15,13 @@
     name: vaultwarden-server
     image: "{{ vaultwarden_image }}:{{ vaultwarden_version }}"
     state: started
+    network_mode: host
     volumes:
       - "{{ vaultwarden_path }}/var/lib/vaultwarden/:/data/"
-    ports:
-      - "{{ vaultwarden_port }}:80"
     env:
       ADMIN_TOKEN: "{{ vaultwarden_password }}"
-      DOMAIN: "pm.{{ base_domain }}"
+      DOMAIN: "https://pm.{{ base_domain }}"
       SIGNUPS_ALLOWED: "false"
       SHOW_PASSWORD_HINT: "false"
+      ROCKET_PORT: "4000"
+      ROCKET_ADDRESS: "127.0.0.1"
