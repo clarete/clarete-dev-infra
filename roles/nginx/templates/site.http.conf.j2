@@ -3,9 +3,33 @@ add_header X-Frame-Options SAMEORIGIN;
 add_header X-Content-Type-Options nosniff;
 add_header X-XSS-Protection "1; mode=block";
 
-{# defined in vars/main.yml #}
-{% for domain, redirect in rewrite_rules %}
+{# static_sites and rewrite_rules are defined in vars/main.yml #}
 
+{% for domain in static_sites %}
+server {
+    listen 80;
+    server_name {{ domain }};
+    access_log /var/log/nginx/{{ domain }}-access.log;
+    error_log /var/log/nginx/{{ domain }}-error.log;
+    include /etc/nginx/snippets/letsencrypt.conf;
+
+    location / {
+
+        {% if ssl %}
+        {# Then this file is just a redirect to the HTTPS address #}
+        return 301 https://{{ domain }}$request_uri;
+
+        {% else %}
+        {# No SSL certificates available, just proxy to location: #}
+
+        root /var/www/html/{{ domain }};
+        limit_req zone=rate_limit burst=20 nodelay;
+        {% endif %}
+    }
+}
+{% endfor %}
+
+{% for domain, redirect in rewrite_rules %}
 server {
     listen 80;
     server_name {{ domain }};
@@ -29,5 +53,4 @@ server {
         {% endif %}
     }
 }
-
 {% endfor %}

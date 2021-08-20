@@ -65,6 +65,7 @@
       -w {{ letsencrypt_webroot_path }} \
       -m {{ letsencrypt_email }} \
       {% for domain, _ in rewrite_rules %} -d {{ domain }}{% endfor %} \
+      {% for domain in static_sites %} -d {{ domain }}{% endfor %} \
       && service nginx reload
   args:
     creates: "{{ letsencrypt_etc_path }}"
@@ -81,6 +82,7 @@
         -w {{ letsencrypt_webroot_path }} \
         -m {{ letsencrypt_email }} \
         {% for domain, _ in rewrite_rules %} -d {{ domain }}{% endfor %} \
+        {% for domain in static_sites %} -d {{ domain }}{% endfor %} \
       && service nginx reload
 
 - name: Add letsencrypt cronjob for cert renewal
@@ -101,3 +103,7 @@
     src="/etc/nginx/sites-available/site.https.conf"
     dest="/etc/nginx/sites-enabled/site.https.conf"
   notify: restart nginx
+
+- name: ensure static website directories
+  file: name="/var/www/html/{{ item }}" state="directory" mode="0755"
+  with_items: "{{ static_sites }}"

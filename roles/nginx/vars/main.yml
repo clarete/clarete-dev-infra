@@ -1,3 +1,4 @@
+static_sites: ["clarete.dev"]
 rewrite_rules: [
   ["influxdb2.observ.clarete.dev", "localhost:{{ influxdb_port }}"],
   ["grafana.observ.clarete.dev", "localhost:{{ grafana_port }}"],
