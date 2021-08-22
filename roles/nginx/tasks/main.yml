@@ -73,7 +73,7 @@
 
 - name: letsencrypt renewal script
   copy:
-    dest: /usr/sbin/lesencrypt-renew.sh
+    dest: /usr/sbin/letsencrypt-renew.sh
     mode: 0755
     content: |
       #!/bin/sh
