@@ -48,8 +48,10 @@ server {
 
         # Always HTTP here, because it's local
         proxy_pass http://{{ redirect }};
-
         limit_req zone=rate_limit burst=20 nodelay;
+        proxy_set_header Host            $host;
+        proxy_set_header X-Real-IP       $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         {% endif %}
     }
 }
