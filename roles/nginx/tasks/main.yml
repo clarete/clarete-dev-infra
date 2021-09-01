@@ -60,12 +60,10 @@
 
 - name: Create letsencrypt certificate
   shell: |
-    letsencrypt certonly -n --webroot --agree-tos \
+    letsencrypt renew -n --webroot --agree-tos \
       --cert-name {{ letsencrypt_certificate_name }} \
       -w {{ letsencrypt_webroot_path }} \
       -m {{ letsencrypt_email }} \
-      {% for domain, _ in rewrite_rules %} -d {{ domain }}{% endfor %} \
-      {% for domain in static_sites %} -d {{ domain }}{% endfor %} \
       && service nginx reload
   args:
     creates: "{{ letsencrypt_etc_path }}"
