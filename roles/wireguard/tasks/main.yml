@@ -1,0 +1,40 @@
+---
+
+- name: Add specified repository into sources list
+  ansible.builtin.apt_repository:
+    repo: deb http://deb.debian.org/debian buster-backports main
+    state: present
+
+- name: Creating a file with content
+  copy:
+    dest: "/etc/apt/preferences.d/limit-backports"
+    content: |
+      Package: *
+      Pin: release a=buster-backports
+      Pin-Priority: 90
+
+- name: install wireguard
+  apt: name="{{ item }}" state=latest update_cache=yes
+  loop: ["linux-headers-cloud-amd64", "wireguard", "qrencode"]
+
+- name: create server wireguard config
+  template:
+    dest: /etc/wireguard/wg0.conf
+    src: server_wg0.conf.j2
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: enable and persist ip forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    state: present
+    sysctl_set: yes
+    reload: yes
+
+- name: start wireguard and enable on boot
+  systemd:
+    name: wg-quick@wg0
+    enabled: yes
+    state: started
