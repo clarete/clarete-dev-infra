@@ -18,6 +18,7 @@
     network_mode: host
     volumes:
       - "{{ vaultwarden_path }}/var/lib/vaultwarden/:/data/"
+    container_default_behavior: "no_defaults"
     env:
       ADMIN_TOKEN: "{{ vaultwarden_password }}"
       DOMAIN: "https://pm.{{ base_domain }}"
