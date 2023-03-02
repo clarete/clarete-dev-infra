@@ -45,6 +45,8 @@
     letsencrypt_certificate_path: "/etc/letsencrypt/live/observ"
     letsencrypt_webroot_path: "/var/www/letsencrypt"
 
+    wireguard_privkey: "{{ wireguard_privkey_vault }}"
+
   roles:
     - name: base
       tags: base
@@ -60,3 +62,5 @@
       tags: vaultwarden
     - name: nginx
       tags: nginx
+    - name: wireguard
+      tags: wireguard
